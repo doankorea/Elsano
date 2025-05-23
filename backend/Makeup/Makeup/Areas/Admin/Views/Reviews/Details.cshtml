@@ -1,0 +1,163 @@
+@model Makeup.Models.Review
+@{
+    ViewData["Title"] = "Chi tiết đánh giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layoutadmin.cshtml";
+}
+
+<main role="main">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="row align-items-center my-4">
+                    <div class="col">
+                        <h2 class="h3 mb-0 page-title">Chi tiết đánh giá</h2>
+                    </div>
+                    <div class="col-auto">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fe fe-arrow-left fe-16 mr-2"></i>Quay lại
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- User Information -->
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-4">Thông tin người dùng</h5>
+                                <div class="d-flex align-items-center mb-4">
+                                    @if (!string.IsNullOrEmpty(Model.User?.Avatar))
+                                    {
+                                        <img src="@Model.User.Avatar" alt="@Model.User.UserName" 
+                                             class="avatar rounded-circle mr-3" style="width: 64px; height: 64px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar avatar-lg mr-3">
+                                            <span class="avatar-initial rounded-circle bg-primary">
+                                                @(Model.User?.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                            </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@Model.User?.UserName</h6>
+                                        <p class="small text-muted mb-0">@Model.User?.Email</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Artist Information -->
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-4">Thông tin nghệ sĩ</h5>
+                                <div class="d-flex align-items-center mb-4">
+                                    @if (!string.IsNullOrEmpty(Model.Artist?.User?.Avatar))
+                                    {
+                                        <img src="@Model.Artist.User.Avatar" alt="@Model.Artist.FullName" 
+                                             class="avatar rounded-circle mr-3" style="width: 64px; height: 64px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar avatar-lg mr-3">
+                                            <span class="avatar-initial rounded-circle bg-primary">
+                                                @(Model.Artist?.FullName?.Substring(0, 1).ToUpper() ?? "A")
+                                            </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@Model.Artist?.FullName</h6>
+                                        <p class="small text-muted mb-0">@Model.Artist?.User?.PhoneNumber</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Review Details -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-4">Chi tiết đánh giá</h5>
+                                <div class="mb-3">
+                                    <label class="small text-muted d-block">Đánh giá</label>
+                                    <div class="rating-stars">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fe fe-star @(i <= Model.Rating ? "text-warning" : "text-muted") fe-24"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted d-block">Thời gian tạo</label>
+                                    <p class="mb-0">@Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted d-block">Nội dung</label>
+                                    <p class="mb-0">@Model.Content</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-4">Thông tin lịch hẹn</h5>
+                                <div class="mb-3">
+                                    <label class="small text-muted d-block">Dịch vụ</label>
+                                    <p class="mb-0">@Model.Appointment?.ServiceDetail?.Service?.ServiceName</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted d-block">Thời gian hẹn</label>
+                                    <p class="mb-0">@Model.Appointment?.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small text-muted d-block">Địa điểm</label>
+                                    <p class="mb-0">@Model.Appointment?.Location?.Address</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-danger" onclick="confirmDelete(@Model.ReviewId)">
+                                    <i class="fe fe-trash fe-16 mr-2"></i>Xóa đánh giá
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa đánh giá này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="post" action="@Url.Action("Delete", new { id = Model.ReviewId })">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(reviewId) {
+            $('#deleteModal').modal('show');
+        }
+    </script>
+} 

@@ -1,0 +1,73 @@
+﻿<aside class="sidebar-left border-right bg-white shadow" id="leftSidebar" data-simplebar>
+    <a href="#" class="btn collapseSidebar toggle-btn d-lg-none text-muted ml-2 mt-3" data-toggle="toggle">
+        <i class="fe fe-x"><span class="sr-only">Đóng menu</span></i>
+    </a>
+    <nav class="vertnav navbar navbar-light">
+        <!-- nav bar -->
+        <div class="w-100 d-flex justify-content-center mb-4">
+            <a class="navbar-brand mx-auto mt-2 flex-fill text-center" asp-controller="Home" asp-action="Index">
+                <svg version="1.1" id="logo" class="navbar-brand-img brand-sm" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 120 120" xml:space="preserve">
+                    <g>
+                        <polygon class="st0" points="78,105 15,105 24,87 87,87 	" />
+                        <polygon class="st0" points="96,69 33,69 42,51 105,51 	" />
+                        <polygon class="st0" points="78,33 15,33 24,15 87,15 	" />
+                    </g>
+                </svg>
+            </a>
+        </div>
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <i class="fe fe-home fe-16"></i>
+                    <span class="ml-3 item-text">Bảng điều khiển</span>
+                </a>
+            </li>
+        </ul>
+        <p class="text-muted nav-heading mt-4 mb-1">
+            <span>Ứng dụng</span>
+        </p>
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item w-100">
+                <a class="nav-link d-flex align-items-center" asp-controller="Calendar" asp-action="Index">
+                    <i class="fe fe-calendar fe-16"></i>
+                    <span class="ml-3 item-text">Lịch</span>
+                </a>
+            </li>
+            <li class="nav-item w-100">
+                <a class="nav-link d-flex align-items-center" asp-controller="Message" asp-action="Index">
+                    <i class="fe fe-book fe-16"></i>
+                    <span class="ml-3 item-text">Liên hệ</span>
+                </a>
+            </li>
+            <li class="nav-item w-100">
+                <a class="nav-link d-flex align-items-center" asp-controller="MakeupArtist" asp-action="Profile">
+                    <i class="fe fe-user fe-16"></i>
+                    <span class="ml-3 item-text">Hồ sơ</span>
+                </a>
+            </li>
+            <li class="nav-item w-100">
+                <a class="nav-link d-flex align-items-center" asp-controller="Apointment" asp-action="Index">
+                    <i class="fe fe-calendar fe-16"></i>
+                    <span class="ml-3 item-text">Quản lý lịch hẹn</span>
+                </a>
+            </li>
+            <li class="nav-item w-100">
+                <a class="nav-link d-flex align-items-center" asp-controller="Service" asp-action="Index">
+                    <i class="fe fe-shopping-cart fe-16"></i>
+                    <span class="ml-3 item-text">Quản lý dịch vụ</span>
+                </a>
+            </li>
+        </ul>
+        <p class="text-muted nav-heading mt-4 mb-1">
+            <span>Thêm</span>
+        </p>
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item w-100">
+                <a class="nav-link d-flex align-items-center" asp-controller="Account" asp-action="Logout">
+                    <i class="fe fe-log-out fe-16"></i>
+                    <span class="ml-3 item-text">Đăng xuất</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>

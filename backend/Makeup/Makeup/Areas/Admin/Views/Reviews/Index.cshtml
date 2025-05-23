@@ -1,0 +1,278 @@
+@model IEnumerable<Makeup.Models.Review>
+@{
+    ViewData["Title"] = "Quản lý đánh giá";
+    Layout = "~/Areas/Admin/Views/Shared/_Layoutadmin.cshtml";
+}
+
+<main role="main">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="row align-items-center my-4">
+                    <div class="col">
+                        <h2 class="h3 mb-0 page-title">Quản lý đánh giá</h2>
+                    </div>
+                </div>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fe fe-check-circle fe-16 mr-2"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fe fe-alert-circle fe-16 mr-2"></i> @TempData["ErrorMessage"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                <!-- Filter Panel -->
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <strong>Lọc đánh giá</strong>
+                    </div>
+                    <div class="card-body">
+                        <form method="get" class="form-inline">
+                            <div class="form-group mr-3">
+                                <label class="mr-2">Nghệ sĩ:</label>
+                                <select name="artistId" class="form-control">
+                                    <option value="">Tất cả nghệ sĩ</option>
+                                    @foreach (var artist in ViewBag.Artists)
+                                    {
+                                        <option value="@artist.ArtistId" @(ViewBag.SelectedArtistId == artist.ArtistId ? "selected" : "")>
+                                            @artist.FullName
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group mr-3">
+                                <label class="mr-2">Đánh giá:</label>
+                                <select name="rating" class="form-control">
+                                    <option value="">Tất cả</option>
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <option value="@i" @(ViewBag.SelectedRating == i ? "selected" : "")>
+                                            @i sao
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fe fe-filter fe-16 mr-2"></i>Lọc
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reviews Table -->
+                <div class="card shadow">
+                    <div class="card-body">
+                        @if (!Model.Any())
+                        {
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="fe fe-star fe-24 text-muted"></i>
+                                </div>
+                                <h3 class="h5 mb-4">Không có đánh giá nào</h3>
+                                <p class="text-muted">Chưa có đánh giá nào được tạo hoặc không có đánh giá phù hợp với bộ lọc.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table border table-hover bg-white">
+                                    <thead>
+                                        <tr>
+                                            <th>Người dùng</th>
+                                            <th>Nghệ sĩ</th>
+                                            <th>Dịch vụ</th>
+                                            <th>Đánh giá</th>
+                                            <th>Nội dung</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var review in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        @if (!string.IsNullOrEmpty(review.User?.Avatar))
+                                                        {
+                                                            <img src="@review.User.Avatar" alt="@review.User.UserName" 
+                                                                 class="avatar rounded-circle mr-2" style="width: 32px; height: 32px;" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="avatar avatar-sm mr-2">
+                                                                <span class="avatar-initial rounded-circle bg-primary">
+                                                                    @(review.User?.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                        <div>
+                                                            <p class="mb-0">@(review.User?.DisplayName ?? review.User?.UserName)</p>
+                                                            <small class="text-muted">@review.User?.Email</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>@review.Artist?.FullName</td>
+                                                <td>@review.Appointment?.ServiceDetail?.Service?.ServiceName</td>
+                                                <td>
+                                                    <div class="rating-stars">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            <i class="fe fe-star @(i <= review.Rating ? "text-warning" : "text-muted")"></i>
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="text-truncate d-inline-block" style="max-width: 200px;">
+                                                        @review.Content
+                                                    </span>
+                                                </td>
+                                                <td>@review.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm dropdown-toggle more-vertical" type="button" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <span class="text-muted sr-only">Thao tác</span>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item" href="@Url.Action("Details", new { id = review.ReviewId })">
+                                                                <i class="fe fe-eye fe-16 mr-2"></i>Xem chi tiết
+                                                            </a>
+                                                            <a class="dropdown-item text-danger" href="#" 
+                                                               onclick="confirmDelete(@review.ReviewId)">
+                                                                <i class="fe fe-trash fe-16 mr-2"></i>Xóa
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            @if (ViewBag.TotalPages > 1)
+                            {
+                                <div class="row mt-3">
+                                    <div class="col-sm-12 col-md-5">
+                                        <div class="dataTables_info">
+                                            Hiển thị @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) đến 
+                                            @(Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalItems)) 
+                                            trong tổng số @ViewBag.TotalItems mục
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-7">
+                                        <nav aria-label="Phân trang" class="float-right">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <!-- Previous -->
+                                                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, artistId = ViewBag.SelectedArtistId, rating = ViewBag.SelectedRating })" 
+                                                       aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </a>
+                                                </li>
+
+                                                @{
+                                                    var startPage = Math.Max(1, ViewBag.CurrentPage - 2);
+                                                    var endPage = Math.Min(ViewBag.TotalPages, startPage + 4);
+                                                    startPage = Math.Max(1, endPage - 4);
+
+                                                    // First page
+                                                    if (startPage > 1)
+                                                {
+                                                    <li class="page-item">
+                                                            <a class="page-link" href="@Url.Action("Index", new { page = 1, artistId = ViewBag.SelectedArtistId, rating = ViewBag.SelectedRating })">1</a>
+                                                    </li>
+                                                        if (startPage > 2)
+                                                        {
+                                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                        }
+                                                }
+
+                                                    // Page numbers
+                                                    for (var i = startPage; i <= endPage; i++)
+                                                {
+                                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                                        <a class="page-link" href="@Url.Action("Index", new { page = i, artistId = ViewBag.SelectedArtistId, rating = ViewBag.SelectedRating })">@i</a>
+                                                    </li>
+                                                }
+
+                                                    // Last page
+                                                    if (endPage < ViewBag.TotalPages)
+                                                    {
+                                                        if (endPage < ViewBag.TotalPages - 1)
+                                                {
+                                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                        }
+                                                    <li class="page-item">
+                                                            <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.TotalPages, artistId = ViewBag.SelectedArtistId, rating = ViewBag.SelectedRating })">@ViewBag.TotalPages</a>
+                                                    </li>
+                                                }
+                                                }
+
+                                                <!-- Next -->
+                                                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, artistId = ViewBag.SelectedArtistId, rating = ViewBag.SelectedRating })" 
+                                                       aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa đánh giá này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(reviewId) {
+            $('#deleteForm').attr('action', '@Url.Action("Delete")/' + reviewId);
+            $('#deleteModal').modal('show');
+        }
+    </script>
+} 

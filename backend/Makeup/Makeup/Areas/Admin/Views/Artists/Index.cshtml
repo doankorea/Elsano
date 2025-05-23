@@ -1,0 +1,369 @@
+@model IEnumerable<Makeup.Models.MakeupArtist>
+@{
+    ViewData["Title"] = "Quản lý nghệ sĩ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layoutadmin.cshtml";
+}
+
+<main role="main">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="row align-items-center my-4">
+                    <div class="col">
+                        <h2 class="h3 mb-0 page-title">Quản lý nghệ sĩ</h2>
+                    </div>
+                </div>
+
+                <!-- Search and Filter Section -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form method="get" class="form-row align-items-center">
+                            <div class="col-md-4 my-1">
+                                <label class="sr-only" for="searchTerm">Tìm kiếm</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fe fe-search"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                                           value="@ViewBag.SearchTerm" placeholder="Tìm theo tên, email, số điện thoại...">
+                                </div>
+                            </div>
+                            <div class="col-md-3 my-1">
+                                <select class="form-control" name="status">
+                                    <option value="">-- Tất cả trạng thái --</option>
+                                    <option value="active" @(ViewBag.Status == "active" ? "selected" : "")>Đang hoạt động</option>
+                                    <option value="inactive" @(ViewBag.Status == "inactive" ? "selected" : "")>Không hoạt động</option>
+                                </select>
+                            </div>
+                            <div class="col-auto my-1">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fe fe-filter fe-16 mr-2"></i>Lọc
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                                    <i class="fe fe-refresh-cw fe-16 mr-2"></i>Đặt lại
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                @if (TempData["StatusMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fe fe-check-circle fe-16 mr-2"></i> @TempData["StatusMessage"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-body text-center">
+                                <div class="avatar avatar-lg mt-4">
+                                    <a href="#">
+                                        <i class="fe fe-check-circle fe-24 text-success"></i>
+                                    </a>
+                                </div>
+                                <div class="card-text my-2">
+                                    <strong class="card-title my-0">Nghệ sĩ đang hoạt động</strong>
+                                    <p class="small text-muted mb-0">@Model.Count(a => a.IsActive == 1) nghệ sĩ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-body text-center">
+                                <div class="avatar avatar-lg mt-4">
+                                    <a href="#">
+                                        <i class="fe fe-x-circle fe-24 text-danger"></i>
+                                    </a>
+                                </div>
+                                <div class="card-text my-2">
+                                    <strong class="card-title my-0">Nghệ sĩ không hoạt động</strong>
+                                    <p class="small text-muted mb-0">@Model.Count(a => a.IsActive == 0) nghệ sĩ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-body text-center">
+                                <div class="avatar avatar-lg mt-4">
+                                    <a href="#">
+                                        <i class="fe fe-users fe-24 text-primary"></i>
+                                    </a>
+                                </div>
+                                <div class="card-text my-2">
+                                    <strong class="card-title my-0">Tổng số nghệ sĩ</strong>
+                                    <p class="small text-muted mb-0">@Model.Count() nghệ sĩ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-body">
+                        @if (!Model.Any())
+                        {
+                            <div class="alert alert-info" role="alert">
+                                Không tìm thấy nghệ sĩ nào.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table border table-hover bg-white">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="all">
+                                                    <label class="custom-control-label" for="all"></label>
+                                                </div>
+                                            </th>
+                                            <th>Nghệ sĩ</th>
+                                            <th>Thông tin liên hệ</th>
+                                            <th>Kinh nghiệm</th>
+                                            <th>Đánh giá</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var artist in Model)
+                                        {
+                                            string statusClass = artist.IsActive == 1 ? "badge-success" : "badge-danger";
+                                            string statusText = artist.IsActive == 1 ? "Hoạt động" : "Không hoạt động";
+
+                                            <tr>
+                                                <td>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="check-@artist.ArtistId">
+                                                        <label class="custom-control-label" for="check-@artist.ArtistId"></label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        @if (artist.User != null && !string.IsNullOrEmpty(artist.User.Avatar))
+                                                        {
+                                                            <img src="@artist.User.Avatar" alt="Ảnh đại diện của @artist.FullName" 
+                                                                 class="avatar rounded-circle mr-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="avatar avatar-md mr-2 bg-primary">
+                                                                <span class="avatar-initial rounded-circle">@(artist.FullName != null ? artist.FullName.Substring(0, 1).ToUpper() : "A")</span>
+                                                            </div>
+                                                        }
+                                                        <div>
+                                                            <p class="mb-0">@artist.FullName</p>
+                                                            <small class="text-muted">@(artist.Specialty ?? "Chuyên gia trang điểm")</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0">@artist.User?.Email</p>
+                                                    <small class="text-muted">@artist.User?.PhoneNumber</small>
+                                                </td>
+                                                <td>@(artist.Experience ?? 0) năm</td>
+                                                <td>
+                                                    @if (artist.Rating.HasValue)
+                                                    {
+                                                        <div class="rating-stars">
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                if (i <= artist.Rating)
+                                                                {
+                                                                    <i class="fe fe-star text-warning"></i>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="fe fe-star text-muted"></i>
+                                                                }
+                                                            }
+                                                            <small class="text-muted ml-1">(@artist.Rating)</small>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Chưa có đánh giá</span>
+                                                    }
+                                                </td>
+                                                <td><span class="badge @statusClass">@statusText</span></td>
+                                                <td>@artist.User?.CreatedAt?.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        @if (artist.IsActive == 1)
+                                                        {
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                    onclick="toggleArtistStatus(@artist.ArtistId, false)" 
+                                                                    title="Vô hiệu hóa">
+                                                                <i class="fe fe-pause-circle"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button type="button" class="btn btn-sm btn-outline-success" 
+                                                                    onclick="toggleArtistStatus(@artist.ArtistId, true)" 
+                                                                    title="Kích hoạt">
+                                                                <i class="fe fe-play-circle"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="row mt-4">
+                                <div class="col-sm-12 col-md-5">
+                                    <div class="dataTables_info" role="status">
+                                        Hiển thị @(ViewBag.Skip + 1) đến @(ViewBag.Skip + Model.Count()) 
+                                        trong tổng số @ViewBag.TotalItems bản ghi
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-7">
+                                    <nav aria-label="Page navigation" class="float-right">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <!-- Previous -->
+                                            <li class="page-item @(!ViewBag.HasPreviousPage ? "disabled" : "")">
+                                                <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status })" 
+                                                   aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+
+                                            @{
+                                                var startPage = ViewBag.StartPage;
+                                                var endPage = ViewBag.EndPage;
+
+                                                // First page
+                                                if (ViewBag.ShowFirstPage)
+                                                {
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="@Url.Action("Index", new { page = 1, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status })">1</a>
+                                                    </li>
+                                                    if (startPage > 2)
+                                                    {
+                                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                    }
+                                                }
+
+                                                // Page numbers
+                                                for (var i = startPage; i <= endPage; i++)
+                                                {
+                                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status })">@i</a>
+                                                    </li>
+                                                }
+
+                                                // Last page
+                                                if (ViewBag.ShowLastPage)
+                                                {
+                                                    if (endPage < ViewBag.TotalPages - 1)
+                                                    {
+                                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                    }
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.TotalPages, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status })">@ViewBag.TotalPages</a>
+                                                    </li>
+                                                }
+                                            }
+
+                                            <!-- Next -->
+                                            <li class="page-item @(!ViewBag.HasNextPage ? "disabled" : "")">
+                                                <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status })" 
+                                                   aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for artist status toggle confirmation -->
+    <div class="modal fade" id="statusToggleModal" tabindex="-1" role="dialog" aria-labelledby="statusToggleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusToggleModalLabel">Xác nhận thay đổi trạng thái</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="statusToggleMessage">
+                    Bạn có chắc chắn muốn thay đổi trạng thái của nghệ sĩ này?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmStatusBtn">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        var artistIdToToggle = 0;
+        var activateArtist = false;
+
+        function toggleArtistStatus(artistId, activate) {
+            artistIdToToggle = artistId;
+            activateArtist = activate;
+            
+            if (activate) {
+                $('#statusToggleModalLabel').text('Kích hoạt nghệ sĩ');
+                $('#statusToggleMessage').text('Bạn có chắc chắn muốn kích hoạt nghệ sĩ này?');
+                $('#confirmStatusBtn').removeClass('btn-danger').addClass('btn-success');
+            } else {
+                $('#statusToggleModalLabel').text('Vô hiệu hóa nghệ sĩ');
+                $('#statusToggleMessage').text('Bạn có chắc chắn muốn vô hiệu hóa nghệ sĩ này?');
+                $('#confirmStatusBtn').removeClass('btn-success').addClass('btn-danger');
+            }
+            
+            $('#statusToggleModal').modal('show');
+        }
+
+        $(document).ready(function () {
+            $('#confirmStatusBtn').click(function () {
+                if (artistIdToToggle > 0) {
+                    // Create a form dynamically
+                    var form = $('<form>', {
+                        'method': 'post',
+                        'action': '@Url.Action("ToggleStatus", "Artists", new { area = "Admin" })/' + artistIdToToggle
+                    });
+
+                    // Add antiforgery token
+                    form.append('@Html.AntiForgeryToken()');
+                    
+                    // Add activate parameter
+                    form.append($('<input>', {
+                        'type': 'hidden',
+                        'name': 'activate',
+                        'value': activateArtist
+                    }));
+
+                    // Append form to body and submit
+                    form.appendTo('body').submit();
+                }
+            });
+        });
+    </script>
+} 
